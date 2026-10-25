@@ -7,6 +7,7 @@ import { color } from "../../utils/dataColorLight.js";
 import { Link } from "react-router";
 import { useLocalStorage } from "../../services/useLocalStorage.js";
 import { dateString } from "../../utils/dateString.js";
+import BackUpLocale from "../../components/BackupLocale/BackUpLocale.jsx";
 
 function Dashboard() {
   const [dbNota, setDbNota] = useLocalStorage("db_nota", []);
@@ -33,7 +34,7 @@ function Dashboard() {
           namaPelanggan: listNota.nama_customer,
           namaBarang: item.nama_barang,
           jenis: item.jenis_barang,
-          total: listPembayaran.total_pembayaran,
+          total: `Rp. ${listPembayaran.total_pembayaran.toLocaleString("id-ID")}`,
           statusPembayaran: listPembayaran.status_pembayaran,
           tanggalTransaksi: dateString(listPembayaran.tanggal_transaksi),
           pengerjaan: item.status_item,
@@ -97,7 +98,7 @@ function Dashboard() {
               <Card
                 accent="border-l-light-accent-1 dark:border-l-dark-accent-1"
                 title="Penjualan Bulan Ini"
-                content={`Rp. ${totalPerbulan}`}
+                content={`Rp. ${totalPerbulan.toLocaleString("id-ID")}`}
                 detail="Hasil Penjualan Selama Satu Bulan"
                 accentDetail="text-light-pos dark:text-dark-pos"
               />
@@ -155,6 +156,7 @@ function Dashboard() {
               </h3>
               <Table titles={titleData} datas={transaksiTerbaru()} />
             </div>
+            <BackUpLocale />
           </div>
         </main>
       </div>

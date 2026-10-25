@@ -23,8 +23,6 @@ function Penjualan() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const [itembaru, setItemBaru] = useState({});
-
   const filteredNota = dbNota.filter((nota) => {
     const keywordLower = keyword.toLowerCase();
     const kodeNota = nota.kode_nota ? nota.kode_nota.toLowerCase() : "";
@@ -151,6 +149,26 @@ function Penjualan() {
       setDbNota(dataNotaBaru);
     } catch (error) {
       console.error("Gagal memperbarui status pengerjaan nota: ", error);
+    }
+  };
+
+  const handleSimpanPembayaran = (pelunasan) => {
+    try {
+      const dataPembayaran = dbPembayaran.map((pembayaran) => {
+        if (pembayaran.id_nota === pelunasan.idNota) {
+          return {
+            ...pembayaran,
+            rincian_pembayaran: pelunasan.rincianPembayaran,
+            sisa_tagihan: pelunasan.sisaTagihan,
+            status_pembayaran: pelunasan.statusPembayaran,
+          };
+        }
+        return pembayaran;
+      });
+
+      setDbPembayaran(dataPembayaran);
+    } catch (error) {
+      console.error("Gagal memperbarui Pelunasan nota: ", error);
     }
   };
 
@@ -281,6 +299,7 @@ function Penjualan() {
               setData={setDataDetail}
               handleStatusItems={handleStatusItems}
               handleStatusPengerjaan={handleStatusPengerjaan}
+              handleSimpanPembayaran={handleSimpanPembayaran}
             />
           )}
         </div>

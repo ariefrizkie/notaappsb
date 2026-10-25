@@ -9,10 +9,11 @@ function ModalDetail({
   isOpen,
   dataNota,
   setData,
-  handleStatusItems,
   handleStatusPengerjaan,
+  handleSimpanPembayaran,
 }) {
   const [dbItemsNota, setDbItemsNota] = useLocalStorage("db_items_nota", []);
+  const [dbPembayaran, setDbPembayaran] = useLocalStorage("db_pembayaran", []);
   const [isLunas, setIsLunas] = useState(true);
   const [isPelunasanOpen, setIsPelunasanOpen] = useState(false);
   const [dataItem, setDataItem] = useState([]);
@@ -79,7 +80,19 @@ function ModalDetail({
     setData(dataBaru);
   };
 
-  // console.log(dataNota);
+  const handlePelunasan = (pelunasan) => {
+    const dataBaru = {
+      ...dataNota,
+      rincianPembayaran: pelunasan.rincianPembayaran,
+      sisaTagihan: pelunasan.sisaTagihan,
+      statusPembayaran: pelunasan.statusPembayaran,
+    };
+
+    setData(dataBaru);
+    handleSimpanPembayaran(dataBaru);
+    setIsPelunasanOpen(false);
+  };
+
   return (
     <div
       id="modal-detail"
@@ -240,7 +253,7 @@ function ModalDetail({
           </div>
         </div>
 
-        {dataNota.statusPembayaran === "Belum Lunas" && (
+        {dataNota.statusPembayaran === "Belum Lunas" ? (
           <button
             className={`flex items-center justify-center gap-1 w-full mb-4 py-2.5 rounded-xl text-sm font-semibold ${color.neg} border cursor-pointer`}
             onClick={() => setIsPelunasanOpen(!isPelunasanOpen)}
@@ -248,9 +261,13 @@ function ModalDetail({
             <PlusIcon className="h-4 w-4" />
             Lanjutkan Pembayaran
           </button>
+        ) : (
+          ""
         )}
 
-        {isPelunasanOpen && <Pelunasan />}
+        {isPelunasanOpen && (
+          <Pelunasan dataNota={dataNota} handleSimpan={handlePelunasan} />
+        )}
 
         <div className="flex gap-2">
           <button

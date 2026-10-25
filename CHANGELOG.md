@@ -30,3 +30,15 @@
 
 - Perbaikan beberapa bug pada beberapa halaman
 - Perbaikan pada alur perubahan status item dan status pengerjaan
+
+## [1.4.4] -2026-10-25
+
+### Added
+
+- Penambahan fitur pelunasan
+- Penambahan fitur BackUp JSON File LocaleStorage
+
+### Fixed
+
+- Perbaikan pada form notabaru
+- Perbaikan pada tombol dark mode

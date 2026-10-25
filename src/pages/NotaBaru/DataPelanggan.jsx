@@ -24,6 +24,7 @@ function DataPelanggan({ data, onChange, handleNama, handleTelepon }) {
             className={`w-full ${color.bgSurface} border ${color.border} rounded-lg px-1.5 py-2 text-sm ${color.text} focus:outline-2 ${color.focus} focus:border-0`}
             value={data.namaCustomer}
             onChange={handleNama}
+            required={true}
           />
           <datalist id="daftar-pelanggan">
             {dbPelanggan.map((pelanggan) => (
@@ -69,6 +70,7 @@ function DataPelanggan({ data, onChange, handleNama, handleTelepon }) {
             className={`w-full ${color.bgSurface} border ${color.border} rounded-lg px-1.5 py-2 text-sm ${color.text} focus:outline-2 ${color.focus} focus:border-0`}
             value={data.tanggalSelesai}
             onChange={onChange}
+            required={true}
           />
         </div>
       </div>

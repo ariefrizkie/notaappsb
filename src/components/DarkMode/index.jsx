@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 import { MoonIcon, Sun } from "lucide-react";
 import { color } from "../../utils/dataColorLight";
+import { useLocalStorage } from "../../services/useLocalStorage";
 
 function DarkMode() {
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem("theme") === "dark";
+    return localStorage.getItem("theme") || "light";
   });
+
+  // const [theme, setTheme] = useLocalStorage("theme", "dark");
 
   useEffect(() => {
     const root = document.documentElement;
 
-    if (theme) {
+    if (theme === "dark") {
       root.classList.add("dark");
       localStorage.setItem("theme", "dark");
     } else {
@@ -20,7 +23,11 @@ function DarkMode() {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => !prevTheme);
+    if (theme === "dark") {
+      return setTheme("light");
+    } else if (theme === "light") {
+      return setTheme("dark");
+    }
   };
 
   return (
@@ -28,9 +35,8 @@ function DarkMode() {
       <button
         onClick={toggleTheme}
         className="text-light-nav-active-text cursor-pointer dark:text-dark-nav-active-text"
-        data-mode-btn="light"
       >
-        {theme === "light" ? <MoonIcon /> : <Sun />}
+        {theme == "light" ? <MoonIcon /> : <Sun />}
       </button>
     </div>
   );
