@@ -42,3 +42,14 @@
 
 - Perbaikan pada form notabaru
 - Perbaikan pada tombol dark mode
+
+## [2.0.0] Beta -2026-10-25
+
+### Added
+
+- Perubahan penyimpanan ke supabase
+
+### Fixed
+
+- Perbaikan pada form notabaru
+- Perbaikan pada tombol dark mode

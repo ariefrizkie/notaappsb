@@ -8,6 +8,8 @@ import TableHeader from "../../components/Table/TableHeader";
 import BarisItem from "./BarisItem";
 import Payment from "./Payment";
 import { useLocalStorage } from "../../services/useLocalStorage";
+import { useSupabase } from "../../services/useSupabase";
+import { postSupabase } from "../../services/postSupabase";
 
 function NotaBaru() {
   const idNotaBaru = useRef(Date.now());
@@ -36,6 +38,7 @@ function NotaBaru() {
     transfer: 0,
     eWallet: 0,
   });
+  const [dataCoba] = useSupabase("db_nota", []);
 
   const handleTambahBaris = () => {
     const barisBaru = {
@@ -190,6 +193,7 @@ function NotaBaru() {
     };
 
     setDbNota([...dbNota, dataNota]);
+    postSupabase("db_nota", dataNota);
     setDbItemsNota((prevItems) => [...prevItems, ...dataItems]);
     setDbPembayaran([...dbPembayaran, dataPembayaran]);
 
@@ -260,7 +264,7 @@ function NotaBaru() {
 
     idNotaBaru.current = Date.now();
   };
-
+  console.log(dataCoba);
   return (
     <div className={`relative flex transition-colors w-full`}>
       <Sidebar />

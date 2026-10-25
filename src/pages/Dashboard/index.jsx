@@ -8,6 +8,9 @@ import { Link } from "react-router";
 import { useLocalStorage } from "../../services/useLocalStorage.js";
 import { dateString } from "../../utils/dateString.js";
 import BackUpLocale from "../../components/BackupLocale/BackUpLocale.jsx";
+import { useEffect, useState } from "react";
+import { supabase } from "../../services/supabaseClient.js";
+import { useSupabase } from "../../services/useSupabase.js";
 
 function Dashboard() {
   const [dbNota, setDbNota] = useLocalStorage("db_nota", []);
@@ -69,6 +72,9 @@ function Dashboard() {
     (nota) => nota.status_pesanan === "Dalam Proses",
   );
 
+  const [dataCoba, setDataCoba] = useSupabase("db_pembayaran", []);
+
+  console.log(dataCoba);
   return (
     <>
       <div className={`relative flex transition-colors w-full`}>
