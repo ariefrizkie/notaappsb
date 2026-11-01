@@ -2,18 +2,19 @@ import Sidebar from "../../components/Sidebar";
 import { PenLine, Plus, Trash } from "lucide-react";
 import { color } from "../../utils/dataColorLight";
 import Table from "../../components/Table";
-import { useLocalStorage } from "../../services/useLocalStorage";
 import { useState } from "react";
 import ModalEditPelanggan from "./ModalEditPelanggan";
 import ModalTambahPelanggan from "./ModalTambahPelanggan";
+import { useSupabase } from "../../services/SupabaseContext";
 
 function Pelanggan() {
-  const [dbPelanggan, setDbPelanggan] = useLocalStorage("db_pelanggan", []);
+  const { dbPelanggan, loading, insertData, updateData, deleteData } =
+    useSupabase();
   const [isTambahPelangganOpen, setIsTambahPelangganOpen] = useState(false);
   const [isEditPelangganOpen, setIsEditPelangganOpen] = useState(false);
 
   const [keyWord, setKeyword] = useState("");
-  const [filterUrutan, setFilterUrutan] = useState("");
+  const [filterUrutan, setFilterUrutan] = useState("kode-asc");
 
   const [dataDipilih, setDataDipilih] = useState({});
 
@@ -44,7 +45,7 @@ function Pelanggan() {
             className={`inline-flex items-center justify-center rounded-lg ${color.textMuted} cursor-pointer bg-transparent w-7 h-7 p-1 mr-1 ${color.hoverNeg}`}
             onClick={() => {
               if (confirm("Anda yakin ingin menghapus produk ini?")) {
-                handleHapusPelanggan(row.kodePelanggan);
+                handleHapusPelanggan(row.idCustomer);
               }
             }}
           >
@@ -105,28 +106,19 @@ function Pelanggan() {
   });
 
   const handleSimpanPelanggan = (dataBaru) => {
-    setDbPelanggan((prev) => [...prev, dataBaru]);
+    insertData("db_pelanggan", dataBaru);
   };
   const handleEditPelanggan = (dataBaru) => {
-    setDbPelanggan((prev) => {
-      return prev.map((pelanggan) => {
-        if (pelanggan.id_customer === dataBaru.id_customer) {
-          return dataBaru;
-        }
-        return pelanggan;
-      });
-    });
+    updateData("db_pelanggan", dataBaru.id_customer, dataBaru, "id_customer");
   };
   const handleHapusPelanggan = (dataHapus) => {
-    const daftarPelanggan = dbPelanggan.filter((pelanggan) => {
-      return pelanggan.kode_customer != dataHapus;
-    });
-    setDbPelanggan(daftarPelanggan);
+    deleteData("db_pelanggan", dataHapus, "id_customer");
   };
 
   const listPelanggan = () => {
     const daftarPelanggan = sortedPelanggan.map((pelanggan) => {
       return {
+        idCustomer: pelanggan.id_customer,
         kodePelanggan: pelanggan.kode_customer,
         namaCustomer: pelanggan.nama_customer,
         noTelepon: pelanggan.nomor_telepon,
@@ -176,11 +168,10 @@ function Pelanggan() {
                 value={filterUrutan}
                 onChange={(e) => setFilterUrutan(e.target.value)}
               >
-                <option value="">Default</option>
+                <option value="kode-asc">Default</option>
+                <option value="kode-desc">Kode (Turun)</option>
                 <option value="nama-asc">Nama A-Z</option>
                 <option value="nama-desc">Nama Z-A</option>
-                <option value="kode-asc">Kode (Naik)</option>
-                <option value="kode-desc">Kode (Turun)</option>
                 {/* <option value="total-trans-asc">Transaksi Terbanyak</option>
                 <option value="total-trans-desc">Transaksi Sedikit</option>
                 <option value="item-asc">Item Terbanyak</option>
@@ -200,13 +191,18 @@ function Pelanggan() {
           <div
             className={`rounded-xl overflow-x-auto ${color.bgSurface} border ${color.border}`}
           >
-            <Table titles={pelangganTitle} datas={listPelanggan()} />
+            <Table
+              titles={pelangganTitle}
+              datas={listPelanggan()}
+              loading={loading}
+            />
           </div>
           {isTambahPelangganOpen && (
             <ModalTambahPelanggan
               modalClose={setIsTambahPelangganOpen}
               isOpen={isTambahPelangganOpen}
               onSimpan={handleSimpanPelanggan}
+              dbPelanggan={dbPelanggan}
             />
           )}
           {isEditPelangganOpen && (

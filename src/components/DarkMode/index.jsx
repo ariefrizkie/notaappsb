@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { MoonIcon, Sun } from "lucide-react";
 import { color } from "../../utils/dataColorLight";
-import { useLocalStorage } from "../../services/useLocalStorage";
 
 function DarkMode() {
   const [theme, setTheme] = useState(() => {

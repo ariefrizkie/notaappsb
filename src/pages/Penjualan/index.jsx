@@ -3,19 +3,24 @@ import { useState } from "react";
 import { Link } from "react-router";
 import Card from "../../components/Card";
 import Sidebar from "../../components/Sidebar";
-import { useLocalStorage } from "../../services/useLocalStorage";
 import { color } from "../../utils/dataColorLight";
 import ModalDetail from "./ModalDetail";
 import CardNota from "./CardNota";
 import { dateString } from "../../utils/dateString";
+import { useSupabase } from "../../services/SupabaseContext";
 
 function Penjualan() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [dbNota, setDbNota] = useLocalStorage("db_nota", []);
-  const [dbItemsNota, setDbItemsNota] = useLocalStorage("db_items_nota", []);
-  const [dbPembayaran, setDbPembayaran] = useLocalStorage("db_pembayaran", []);
-  const [dbPelanggan, setDbPelanggan] = useLocalStorage("db_pelanggan", []);
+  const {
+    dbNota,
+    dbItemsNota,
+    dbPembayaran,
+    dbPelanggan,
+    loading,
+    dbError,
+    updateData,
+  } = useSupabase();
 
   const [dataDetail, setDataDetail] = useState({});
   const [keyword, setKeyword] = useState("");
@@ -23,7 +28,7 @@ function Penjualan() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const filteredNota = dbNota.filter((nota) => {
+  const filteredNota = dbNota?.filter((nota) => {
     const keywordLower = keyword.toLowerCase();
     const kodeNota = nota.kode_nota ? nota.kode_nota.toLowerCase() : "";
     const namaPelanggan = nota.nama_customer
@@ -75,7 +80,7 @@ function Penjualan() {
         });
 
         const listPelanggan = dbPelanggan.find((pelanggan) => {
-          return pelanggan.kode_customer == nota.kode_customer;
+          return pelanggan.id_customer == nota.id_customer;
         });
 
         return {
@@ -119,34 +124,23 @@ function Penjualan() {
     };
   };
 
-  const handleStatusItems = (dataItem) => {
-    console.log(dataItem);
-  };
   const handleStatusPengerjaan = (dataNota) => {
     try {
-      const itemSelain = dbItemsNota.map((item) => {
-        const itemBaru = dataNota.items.find(
-          (baru) => baru.id_item === item.id_item,
+      dataNota.items.map((item) => {
+        return updateData(
+          "db_items_nota",
+          item.id_item,
+          { status_item: item.status_item },
+          "id_item",
         );
-        if (itemBaru) {
-          return itemBaru;
-        }
-        return item;
       });
 
-      setDbItemsNota(itemSelain);
-
-      const dataNotaBaru = dbNota.map((nota) => {
-        if (nota.id_nota === dataNota.idNota) {
-          return {
-            ...nota,
-            status_pesanan: dataNota.pengerjaan,
-          };
-        }
-        return nota;
-      });
-
-      setDbNota(dataNotaBaru);
+      updateData(
+        "db_nota",
+        dataNota.idNota,
+        { status_pesanan: dataNota.pengerjaan },
+        "id_nota",
+      );
     } catch (error) {
       console.error("Gagal memperbarui status pengerjaan nota: ", error);
     }
@@ -154,19 +148,16 @@ function Penjualan() {
 
   const handleSimpanPembayaran = (pelunasan) => {
     try {
-      const dataPembayaran = dbPembayaran.map((pembayaran) => {
-        if (pembayaran.id_nota === pelunasan.idNota) {
-          return {
-            ...pembayaran,
-            rincian_pembayaran: pelunasan.rincianPembayaran,
-            sisa_tagihan: pelunasan.sisaTagihan,
-            status_pembayaran: pelunasan.statusPembayaran,
-          };
-        }
-        return pembayaran;
-      });
-
-      setDbPembayaran(dataPembayaran);
+      updateData(
+        "db_pembayaran",
+        pelunasan.idNota,
+        {
+          rincian_pembayaran: pelunasan.rincianPembayaran,
+          sisa_tagihan: pelunasan.sisaTagihan,
+          status_pembayaran: pelunasan.statusPembayaran,
+        },
+        "id_nota",
+      );
     } catch (error) {
       console.error("Gagal memperbarui Pelunasan nota: ", error);
     }
@@ -275,7 +266,11 @@ function Penjualan() {
 
           {/* grid nota */}
           <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-4">
-            {listPenjualan().length === 0 ? (
+            {loading ? (
+              <div className={`col-span-3 text-center ${color.textMuted}`}>
+                Memuat Data....
+              </div>
+            ) : listPenjualan().length === 0 ? (
               <div className={`col-span-3 text-center ${color.textMuted}`}>
                 Belum Ada Nota Penjualan / Pembelian
               </div>
@@ -297,7 +292,6 @@ function Penjualan() {
               isOpen={isModalOpen}
               dataNota={dataDetail}
               setData={setDataDetail}
-              handleStatusItems={handleStatusItems}
               handleStatusPengerjaan={handleStatusPengerjaan}
               handleSimpanPembayaran={handleSimpanPembayaran}
             />

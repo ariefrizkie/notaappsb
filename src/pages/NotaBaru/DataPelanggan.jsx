@@ -1,11 +1,11 @@
 import { useState } from "react";
 import Input from "../../components/Form/Input";
 import Label from "../../components/Form/Label";
-import { useLocalStorage } from "../../services/useLocalStorage";
 import { color } from "../../utils/dataColorLight";
+import { useSupabase } from "../../services/SupabaseContext";
 
 function DataPelanggan({ data, onChange, handleNama, handleTelepon }) {
-  const [dbPelanggan, setDbPelanggan] = useLocalStorage("db_pelanggan", []);
+  const { dbPelanggan } = useSupabase();
 
   return (
     <div className={`rounded-xl p-5 ${color.bgSurface} border ${color.border}`}>

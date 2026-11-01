@@ -6,16 +6,17 @@ import { jenisProduk } from "../../services/data";
 import { color } from "../../utils/dataColorLight";
 import ModalTambah from "./ModalTambah";
 import ModalEdit from "./ModalEdit";
-import { useLocalStorage } from "../../services/useLocalStorage";
+import { useSupabase } from "../../services/SupabaseContext";
 
 function Produk() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalEditOpen, setIsModalEditOpen] = useState(false);
-  const [dbProduk, setDbProduk] = useLocalStorage("db_produk", []);
+  const { dbProduk, loading, insertData, updateData, deleteData } =
+    useSupabase();
 
   const [keyWord, setKeyword] = useState("");
   const [filterJenis, setFilterJenis] = useState("");
-  const [filterUrutan, setFilterUrutan] = useState("");
+  const [filterUrutan, setFilterUrutan] = useState("kode-asc");
 
   const [dataDipilih, setDataDipilih] = useState({});
 
@@ -47,7 +48,7 @@ function Produk() {
             className={`inline-flex items-center justify-center rounded-lg ${color.textMuted} cursor-pointer bg-transparent w-7 h-7 p-1 mr-1 ${color.hoverNeg}`}
             onClick={() => {
               if (confirm("Anda yakin ingin menghapus produk ini?")) {
-                handleHapusProduk(row.kodeProduk);
+                handleHapusProduk(row.idProduk);
               }
             }}
           >
@@ -62,6 +63,7 @@ function Produk() {
   const listProduk = () => {
     const daftarProduk = sortedProduk.map((produk) => {
       return {
+        idProduk: produk.id_produk,
         kodeProduk: produk.kode_produk,
         namaProduk: produk.nama_produk,
         jenis: produk.jenis_produk,
@@ -75,23 +77,13 @@ function Produk() {
   };
 
   const handleSimpanProduk = (dataBaru) => {
-    setDbProduk((prev) => [...prev, dataBaru]);
+    insertData("db_produk", dataBaru);
   };
   const handleEditProduk = (dataBaru) => {
-    setDbProduk((prev) => {
-      return prev.map((produk) => {
-        if (produk.id_produk === dataBaru.id_produk) {
-          return dataBaru;
-        }
-        return produk;
-      });
-    });
+    updateData("db_produk", dataBaru.id_produk, dataBaru, "id_produk");
   };
   const handleHapusProduk = (dataHapus) => {
-    const daftarProduk = dbProduk.filter((produk) => {
-      return produk.kode_produk != dataHapus;
-    });
-    setDbProduk(daftarProduk);
+    deleteData("db_produk", dataHapus, "id_produk");
   };
 
   const filterProduk = dbProduk.filter((produk) => {
@@ -198,11 +190,10 @@ function Produk() {
                 value={filterUrutan}
                 onChange={(e) => setFilterUrutan(e.target.value)}
               >
-                <option value="">Default</option>
+                <option value="kode-asc">Default</option>
+                <option value="kode-desc">Urutkan: Kode (Turun)</option>
                 <option value="nama-asc">Urutkan: Nama A-Z</option>
                 <option value="nama-desc">Urutkan: Nama Z-A</option>
-                <option value="kode-asc">Urutkan: Kode (Naik)</option>
-                <option value="kode-desc">Urutkan: Kode (Turun)</option>
                 <option value="jenis-asc">Urutkan: Jenis</option>
               </select>
               <button
@@ -220,13 +211,18 @@ function Produk() {
           <div
             className={`rounded-xl overflow-x-auto ${color.bgSurface} border ${color.border}`}
           >
-            <Table titles={produkTitle} datas={listProduk()} />
+            <Table
+              titles={produkTitle}
+              datas={listProduk()}
+              loading={loading}
+            />
           </div>
           {isModalOpen && (
             <ModalTambah
               modalClose={setIsModalOpen}
               isOpen={isModalOpen}
               onSimpan={handleSimpanProduk}
+              dbProduk={dbProduk}
             />
           )}
           {isModalEditOpen && (

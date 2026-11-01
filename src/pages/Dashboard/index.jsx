@@ -5,18 +5,22 @@ import Table from "../../components/Table/index.jsx";
 import { titleData } from "../../services/data.jsx";
 import { color } from "../../utils/dataColorLight.js";
 import { Link } from "react-router";
-import { useLocalStorage } from "../../services/useLocalStorage.js";
 import { dateString } from "../../utils/dateString.js";
-import BackUpLocale from "../../components/BackupLocale/BackUpLocale.jsx";
-import { useEffect, useState } from "react";
-import { supabase } from "../../services/supabaseClient.js";
-import { useSupabase } from "../../services/useSupabase.js";
+import { useSupabase } from "../../services/SupabaseContext.jsx";
 
 function Dashboard() {
-  const [dbNota, setDbNota] = useLocalStorage("db_nota", []);
-  const [dbItemsNota, setDbItemsNota] = useLocalStorage("db_items_nota", []);
-  const [dbPembayaran, setDbPembayaran] = useLocalStorage("db_pembayaran", []);
-  const [dbPelanggan, setDbPelanggan] = useLocalStorage("db_pelanggan", []);
+  const { dbNota, dbItemsNota, dbPembayaran, dbPelanggan, loading, dbError } =
+    useSupabase();
+
+  if (dbError) {
+    return <div className={`text-center ${color.textMuted}`}>Gagal Memuat</div>;
+  }
+
+  if (loading) {
+    return (
+      <div className={`text-center ${color.textMuted}`}>Memuat Data....</div>
+    );
+  }
 
   const transaksiTerbaru = () => {
     const listItem = dbItemsNota
@@ -24,11 +28,11 @@ function Dashboard() {
       .reverse()
       .map((item) => {
         const listNota = dbNota.find((nota) => {
-          return nota.id_nota == item.id_nota;
+          return nota?.id_nota === item?.id_nota;
         });
 
         const listPembayaran = dbPembayaran.find((pembayaran) => {
-          return pembayaran.id_nota === item.id_nota;
+          return pembayaran?.id_nota === item?.id_nota;
         });
 
         return {
@@ -72,9 +76,6 @@ function Dashboard() {
     (nota) => nota.status_pesanan === "Dalam Proses",
   );
 
-  const [dataCoba, setDataCoba] = useSupabase("db_pembayaran", []);
-
-  console.log(dataCoba);
   return (
     <>
       <div className={`relative flex transition-colors w-full`}>
@@ -160,9 +161,12 @@ function Dashboard() {
               <h3 className={`font-semibold mb-5 text-sm  ${color.text}`}>
                 Transaksi Terbaru
               </h3>
-              <Table titles={titleData} datas={transaksiTerbaru()} />
+              <Table
+                titles={titleData}
+                datas={transaksiTerbaru()}
+                loading={loading}
+              />
             </div>
-            <BackUpLocale />
           </div>
         </main>
       </div>

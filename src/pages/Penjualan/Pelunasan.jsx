@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useLocalStorage } from "../../services/useLocalStorage";
+import { useState } from "react";
 import { color } from "../../utils/dataColorLight";
 
 function Pelunasan({ dataNota, handleSimpan }) {
@@ -20,8 +19,6 @@ function Pelunasan({ dataNota, handleSimpan }) {
       ...prev,
       [name]: Number(value),
     }));
-
-    // setSisaTagihan(sisaTagihan - Number(value));
   };
 
   const simpanPelunasan = () => {

@@ -15,7 +15,7 @@ function TableBody({ datas, titles, emptyMessage = "Tidak ada data" }) {
       ) : (
         datas.map((data, dataIndex) => (
           <tr
-            key={data.idItem || dataIndex}
+            key={data.idItem || data.idProduk || dataIndex}
             className={`border-b ${color.border} ${color.text} text-sm text-left hover:bg-light-surface-alt/40 dark:hover:bg-dark-surface-alt/50`}
           >
             {titles.map((column, colIndex) => (

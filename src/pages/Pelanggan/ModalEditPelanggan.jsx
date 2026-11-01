@@ -8,7 +8,7 @@ function ModalEditPelanggan({ modalClose, isOpen, onEdit, dataPelanggan }) {
     idPelanggan: dataPelanggan.id_customer,
     kodePelanggan: dataPelanggan.kode_customer,
     namaCustomer: dataPelanggan.nama_customer,
-    noTelepon: dataPelanggan.nomor_telepon,
+    nomorTelepon: dataPelanggan.nomor_telepon,
     alamat: dataPelanggan.alamat,
     totalBelanja: dataPelanggan.total_belanja,
     totalTransaksi: dataPelanggan.total_transaksi,
@@ -48,7 +48,7 @@ function ModalEditPelanggan({ modalClose, isOpen, onEdit, dataPelanggan }) {
       id_customer: pelangganDataEdit.idPelanggan,
       kode_customer: pelangganDataEdit.kodePelanggan,
       nama_customer: pelangganDataEdit.namaCustomer,
-      nomor_telepon: pelangganDataEdit.noTelepon,
+      nomor_telepon: pelangganDataEdit.nomorTelepon,
       alamat: pelangganDataEdit.alamat,
       total_belanja: Number(pelangganDataEdit.totalBelanja),
       total_transaksi: Number(pelangganDataEdit.totalTransaksi),
@@ -56,7 +56,7 @@ function ModalEditPelanggan({ modalClose, isOpen, onEdit, dataPelanggan }) {
 
     onEdit(dataPelangganBaru);
 
-    alert("Data Pelanggan berhasil ditambahkan");
+    alert("Data Pelanggan berhasil diperbarui");
     modalClose(false);
   };
   return (

@@ -7,12 +7,11 @@ import { dataItemNota } from "../../services/data";
 import TableHeader from "../../components/Table/TableHeader";
 import BarisItem from "./BarisItem";
 import Payment from "./Payment";
-import { useLocalStorage } from "../../services/useLocalStorage";
-import { useSupabase } from "../../services/useSupabase";
-import { postSupabase } from "../../services/postSupabase";
+import { useSupabase } from "../../services/SupabaseContext";
 
 function NotaBaru() {
   const idNotaBaru = useRef(Date.now());
+  const idCustomerBaru = useRef(Date.now() + Math.random());
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [customerData, setCustomerData] = useState({
     namaCustomer: "",
@@ -38,7 +37,9 @@ function NotaBaru() {
     transfer: 0,
     eWallet: 0,
   });
-  const [dataCoba] = useSupabase("db_nota", []);
+
+  const { dbNota, dbPelanggan, loading, dbError, insertData, updateData } =
+    useSupabase();
 
   const handleTambahBaris = () => {
     const barisBaru = {
@@ -129,24 +130,22 @@ function NotaBaru() {
 
   const statusPembayaran = sisaTagihan <= 0 ? "Lunas" : "Belum Lunas";
 
-  const [dbNota, setDbNota] = useLocalStorage("db_nota", []);
-  const [dbItemsNota, setDbItemsNota] = useLocalStorage("db_items_nota", []);
-  const [dbPembayaran, setDbPembayaran] = useLocalStorage("db_pembayaran", []);
-  const [dbPelanggan, setDbPelanggan] = useLocalStorage("db_pelanggan", []);
-
   const indexCustomer = dbPelanggan.findIndex((p) => {
     const pelangganCocok =
-      p.nama_customer.toLowerCase() === customerData.namaCustomer.toLowerCase();
+      p.nama_customer.trim().toLowerCase() ===
+      customerData.namaCustomer.trim().toLowerCase();
+
     if (customerData.nomorTelepon && p.nomor_telepon) {
       return pelangganCocok || p.nomor_telepon === customerData.nomorTelepon;
     }
+
     return pelangganCocok;
   });
 
-  const kodePelanggan =
+  const idCustomer =
     indexCustomer === -1
-      ? generateIdCustomer(dbPelanggan)
-      : dbPelanggan[indexCustomer].kode_customer;
+      ? idCustomerBaru.current
+      : dbPelanggan[indexCustomer].id_customer;
 
   const handleSimpanData = () => {
     const idNota = idNotaBaru.current;
@@ -154,7 +153,7 @@ function NotaBaru() {
     const dataNota = {
       id_nota: idNota,
       kode_nota: generateKodeNota(dbNota),
-      kode_customer: kodePelanggan,
+      id_customer: idCustomer,
       nama_customer: customerData.namaCustomer,
       tanggal_transaksi: customerData.tanggalTransaksi,
       tanggal_selesai: customerData.tanggalSelesai,
@@ -182,7 +181,7 @@ function NotaBaru() {
 
     const dataPembayaran = {
       id_nota: dataNota.id_nota,
-      kode_customer: kodePelanggan,
+      id_customer: idCustomer,
       nama_customer: customerData.namaCustomer,
       total_pembayaran: totalPembayaran,
       rincian_pembayaran: paymentMetode,
@@ -192,43 +191,42 @@ function NotaBaru() {
       tanggal_transaksi: customerData.tanggalTransaksi,
     };
 
-    setDbNota([...dbNota, dataNota]);
-    postSupabase("db_nota", dataNota);
-    setDbItemsNota((prevItems) => [...prevItems, ...dataItems]);
-    setDbPembayaran([...dbPembayaran, dataPembayaran]);
+    insertData("db_nota", dataNota);
+    insertData("db_items_nota", dataItems);
+    insertData("db_pembayaran", dataPembayaran);
 
-    let dataPelanggan;
     if (indexCustomer === -1) {
       const data = {
-        id_customer: Date.now() + Math.random(),
-        kode_customer: generateIdCustomer(dbPelanggan),
+        id_customer: idCustomerBaru.current,
+        kode_customer: generateKodeCustomer(dbPelanggan),
         nama_customer: customerData.namaCustomer,
         nomor_telepon: customerData.nomorTelepon || "-",
         alamat: "-",
         total_belanja: items.length,
         total_transaksi: Number(totalPembayaran) || 0,
       };
-      dataPelanggan = [...dbPelanggan, data];
+      insertData("db_pelanggan", data);
     } else {
-      let data = dbPelanggan.map((pelanggan, index) => {
-        if (indexCustomer === index) {
-          return {
-            ...pelanggan,
-            total_belanja:
-              Number(pelanggan.total_belanja ? pelanggan.total_belanja : 0) +
-              items.length,
-            total_transaksi:
-              Number(
-                pelanggan.total_transaksi ? pelanggan.total_transaksi : 0,
-              ) + totalPembayaran,
-          };
-        }
+      const dataPelanggan = dbPelanggan.find((pelanggan, index) => {
+        indexCustomer === index;
         return pelanggan;
       });
-      dataPelanggan = data;
-    }
 
-    setDbPelanggan(dataPelanggan);
+      const dataUpdate = {
+        total_belanja:
+          (dataPelanggan.total_belanja ? dataPelanggan.total_belanja : 0) +
+          items.length,
+        total_transaksi:
+          (dataPelanggan.total_transaksi ? dataPelanggan.total_transaksi : 0) +
+          totalPembayaran,
+      };
+      updateData(
+        "db_pelanggan",
+        dataPelanggan.id_customer,
+        dataUpdate,
+        "id_customer",
+      );
+    }
 
     alert("Transaksi Berhasil disimpan!");
     setIsPaymentModalOpen(false);
@@ -264,7 +262,7 @@ function NotaBaru() {
 
     idNotaBaru.current = Date.now();
   };
-  console.log(dataCoba);
+
   return (
     <div className={`relative flex transition-colors w-full`}>
       <Sidebar />
@@ -283,7 +281,7 @@ function NotaBaru() {
                   Nomor Nota
                 </span>
                 <span className="font-bold text-light-nav-active-text dark:text-dark-nav-active-text">
-                  {generateKodeNota(dbNota)}
+                  {loading ? "Loading" : generateKodeNota(dbNota)}
                 </span>
               </div>
             </div>
@@ -409,18 +407,33 @@ const generateTanggalTransaksi = () => {
   return tanggalTransaksi;
 };
 
-const generateIdCustomer = (dataCustomer) => {
-  const prefix = "FGCUST";
+function generateKodeCustomer(dataCustomer) {
+  const prefixKode = "FGCUST";
+  const semuaPelanggan = dataCustomer || [];
 
-  // const listCustomer = getDatabasePelanggan();
-  const customerTerakhir = dataCustomer.filter(
-    (customer) =>
-      customer.kode_customer && customer.kode_customer.startsWith(prefix),
-  );
+  const digitTerpakai = semuaPelanggan
+    .map((pelanggan) => {
+      if (
+        pelanggan.kode_customer &&
+        pelanggan.kode_customer.startsWith(prefixKode)
+      ) {
+        const parts = pelanggan.kode_customer.split("-");
+        return parseInt(parts[1], 10);
+      }
+      return null;
+    })
+    .filter((num) => num !== null && !isNaN(num));
 
-  const nextNumber = String(customerTerakhir.length + 1).padStart(4, "0");
+  const setDigit = new Set(digitTerpakai);
 
-  return `${prefix}${nextNumber}`;
-};
+  let nomorTersedia = 1;
+  while (setDigit.has(nomorTersedia)) {
+    nomorTersedia++;
+  }
+
+  const nextKode = String(nomorTersedia).padStart(4, "0");
+
+  return `${prefixKode}-${nextKode}`;
+}
 
 export default NotaBaru;

@@ -1,10 +1,10 @@
 import { color } from "../../utils/dataColorLight";
 import Td from "../../components/Table/Td";
 import { Trash } from "lucide-react";
-import { useLocalStorage } from "../../services/useLocalStorage";
+import { useSupabase } from "../../services/SupabaseContext";
 
 function BarisItem({ index, dataItem, onChange, onClick, subTotal }) {
-  const [dbProduk, setDbProduk] = useLocalStorage("db_produk", []);
+  const { dbProduk } = useSupabase();
 
   const handleHarga = (produkSelect) => {
     const listProduk = dbProduk.find((produk) => {

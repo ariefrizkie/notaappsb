@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { color } from "../../utils/dataColorLight";
 import { X } from "lucide-react";
-import { useLocalStorage } from "../../services/useLocalStorage";
 import FormProduk from "./FormProduk";
 
-function ModalTambah({ modalClose, isOpen, onSimpan }) {
-  const [dbProduk, setDbProduk] = useLocalStorage("db_produk", []);
-
+function ModalTambah({ modalClose, isOpen, onSimpan, dbProduk }) {
   const [produkData, setProdukData] = useState({
     kodeProduk: "",
     namaProduk: "",

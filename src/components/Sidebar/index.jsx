@@ -17,18 +17,21 @@ function Sidebar() {
       className={`print:hidden relative group font-manrope w-18 hover:w-48 h-screen shrink-0 flex flex-col justify-between gap-7 py-6 px-3 ${color.bgSidebar} transition-all duration-300 ease-in-out z-50 overflow-hidden shadow-lg`}
     >
       <nav className="flex flex-col gap-7 ">
-        <div className="flex gap-3 px-3 h-6">
-          <img
-            src={logoFg}
-            alt="Foton Graphia"
-            className="shrink-0 object-contain"
-          />
-          <img
-            src={logoFoton}
-            alt="Foton Graphia"
-            className="shrink-0 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 object-contain"
-          />
-        </div>
+        <NavLink to="/">
+          <div className="flex gap-3 px-3 h-6">
+            <img
+              src={logoFg}
+              alt="Foton Graphia"
+              className="shrink-0 object-contain"
+            />
+            <img
+              src={logoFoton}
+              alt="Foton Graphia"
+              className="shrink-0 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 object-contain"
+            />
+          </div>
+        </NavLink>
+
         <div className="flex flex-col gap-1 dark:text-dark-text">
           <NavLink to="/">
             {({ isActive }) => (
@@ -98,7 +101,7 @@ function Sidebar() {
           className={`font-semibold hover:text-light-nav-active-text hover:dark:text-dark-nav-active-text  text-sm ${color.textMuted} opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap`}
         >
           Foton Graphia
-          <br />V 1.4.4
+          <br />V 2.0.0
         </div>
       </div>
     </aside>

@@ -2,7 +2,6 @@ import { PlusIcon, PrinterIcon, X } from "lucide-react";
 import Pelunasan from "./Pelunasan";
 import { color } from "../../utils/dataColorLight";
 import { useEffect, useState } from "react";
-import { useLocalStorage } from "../../services/useLocalStorage";
 
 function ModalDetail({
   modalClose,
@@ -12,20 +11,13 @@ function ModalDetail({
   handleStatusPengerjaan,
   handleSimpanPembayaran,
 }) {
-  const [dbItemsNota, setDbItemsNota] = useLocalStorage("db_items_nota", []);
-  const [dbPembayaran, setDbPembayaran] = useLocalStorage("db_pembayaran", []);
-  const [isLunas, setIsLunas] = useState(true);
   const [isPelunasanOpen, setIsPelunasanOpen] = useState(false);
   const [dataItem, setDataItem] = useState([]);
 
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleDataItem = dbItemsNota.filter(
-      (item) => item.id_nota === dataNota.idNota,
-    );
-
-    setDataItem(handleDataItem);
+    setDataItem(dataNota.items);
 
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {

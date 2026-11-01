@@ -49,7 +49,7 @@ function FormPelanggan({ pelangganData, handleChange }) {
           name="nomorTelepon"
           placeholder="mis. 08524890****"
           className={`border rounded-lg py-2 px-3 text-sm ${color.bgSurfaceAlt} ${color.border} ${color.text} ${color.focus}`}
-          value={pelangganData.noTelepon}
+          value={pelangganData.nomorTelepon}
           onChange={handleChange}
         />
       </div>
@@ -68,7 +68,7 @@ function FormPelanggan({ pelangganData, handleChange }) {
           onChange={handleChange}
           placeholder="masukkan alamat"
         >
-          pelangganData.alamat
+          {pelangganData.alamat}
         </textarea>
       </div>
     </div>

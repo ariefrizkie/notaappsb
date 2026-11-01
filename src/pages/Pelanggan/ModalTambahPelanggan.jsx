@@ -2,10 +2,8 @@ import { color } from "../../utils/dataColorLight";
 import { X } from "lucide-react";
 import FormPelanggan from "./FormPelanggan";
 import { useEffect, useState } from "react";
-import { useLocalStorage } from "../../services/useLocalStorage";
 
-function ModalTambahPelanggan({ modalClose, isOpen, onSimpan }) {
-  const [dbPelanggan, setDbPelanggan] = useLocalStorage("db_pelanggan", []);
+function ModalTambahPelanggan({ modalClose, isOpen, onSimpan, dbPelanggan }) {
   const [pelangganData, setPelangganData] = useState({
     kodePelanggan: "",
     namaPelanggan: "",
@@ -13,18 +11,34 @@ function ModalTambahPelanggan({ modalClose, isOpen, onSimpan }) {
     alamat: "",
   });
 
-  const generateIdCustomer = (dataCustomer) => {
-    const prefix = "FGCUST";
+  function generateIdCustomer(dataCustomer) {
+    const prefixKode = "FGCUST";
+    const semuaPelanggan = dataCustomer || [];
 
-    const customerTerakhir = dataCustomer.filter(
-      (customer) =>
-        customer.kode_customer && customer.kode_customer.startsWith(prefix),
-    );
+    const digitTerpakai = semuaPelanggan
+      .map((pelanggan) => {
+        if (
+          pelanggan.kode_customer &&
+          pelanggan.kode_customer.startsWith(prefixKode)
+        ) {
+          const parts = pelanggan.kode_customer.split("-");
+          return parseInt(parts[1], 10);
+        }
+        return null;
+      })
+      .filter((num) => num !== null && !isNaN(num));
 
-    const nextNumber = String(customerTerakhir.length + 1).padStart(4, "0");
+    const setDigit = new Set(digitTerpakai);
 
-    return `${prefix}${nextNumber}`;
-  };
+    let nomorTersedia = 1;
+    while (setDigit.has(nomorTersedia)) {
+      nomorTersedia++;
+    }
+
+    const nextKode = String(nomorTersedia).padStart(4, "0");
+
+    return `${prefixKode}-${nextKode}`;
+  }
 
   useEffect(() => {
     if (isOpen) {

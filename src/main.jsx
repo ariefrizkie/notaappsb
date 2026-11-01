@@ -9,6 +9,7 @@ import Pelanggan from "./pages/Pelanggan/index.jsx";
 import Produk from "./pages/Produk/index.jsx";
 import Penjualan from "./pages/Penjualan/index.jsx";
 import PrintPage from "./pages/Penjualan/PrintPage.jsx";
+import {SupabaseProvider} from "./services/SupabaseContext";
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <SupabaseProvider>
+      <RouterProvider router={router} />
+    </SupabaseProvider>
   </StrictMode>,
 );

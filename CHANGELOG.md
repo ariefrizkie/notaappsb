@@ -43,13 +43,10 @@
 - Perbaikan pada form notabaru
 - Perbaikan pada tombol dark mode
 
-## [2.0.0] Beta -2026-10-25
+## [2.0.0] -2026-11-01
 
 ### Added
 
-- Perubahan penyimpanan ke supabase
-
-### Fixed
-
-- Perbaikan pada form notabaru
-- Perbaikan pada tombol dark mode
+- Perubahan penyimpanan ke database dari supabase
+- Penambahan loading data
+- Beberapa penambahan lainnya
